@@ -9,7 +9,6 @@ Class Fcurve
 	Const HOLD:Int			= 1
 	Const COSINE:Int		= 2
 	
-	Field resolution:Int = 5				'Resolution in pixels. The lower this value, the smoother it looks when plotted
 	Field loop:Bool = False
 	
 	Private
