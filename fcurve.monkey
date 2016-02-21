@@ -10,11 +10,10 @@ Class Fcurve
 	Const COSINE:Int		= 2
 	
 	Field loop:Bool = False
-	
+
 	Private
-	
-	Field timeline:= New IntMap<Keyframe>
-	Field first:Keyframe, last:Keyframe
+	Field timeline:= New IntMap<Knot>
+	Field first:Knot, last:Knot
 	Field max:Float, min:Float
 	
 	Public
@@ -29,8 +28,10 @@ Class Fcurve
 		If timeline.Contains( time )
 			Return timeline.Get( time ).value
 		Else
-			Local prv:Keyframe = GetPrevious( time )
-			Local nxt:Keyframe = GetNext( time )
+			If time < first.time Then Return first.value
+			If time > last.time Then Return last.value
+			Local prv:Knot = GetPrevious( time )
+			Local nxt:Knot = GetNext( time )
 			If prv <> nxt		'if they're the same, no need to interpolate. In fact, it causes a division by zero.
 				Return Interpolate( prv.value, nxt.value, (time - prv.time) / (nxt.time - prv.time), prv.style )
 			Else
@@ -41,7 +42,7 @@ Class Fcurve
 	
 	
 	Method AddKnot:Void( value:Float, time:Int, style:Int=LINEAR )
-		Local keyframe := New Keyframe
+		Local keyframe := New Knot
 		keyframe.value = value
 		keyframe.time = time
 		keyframe.style = style
@@ -69,10 +70,10 @@ Class Fcurve
 	End	
 	
 	
-	Method GetPrevious:Keyframe( time:Int )
+	Method GetPrevious:Knot( time:Int )
 		Local temptime:Int = time
-		Local current:Keyframe
-		For Local k:Keyframe = Eachin timeline.Values()
+		Local current:Knot
+		For Local k:Knot = Eachin timeline.Values()
 			If Not current Then current = first	'gets first value
 			If k.time < time + 1
 				current = k
@@ -82,9 +83,9 @@ Class Fcurve
 	End
 	
 	
-	Method GetNext:Keyframe( time:Int )
+	Method GetNext:Knot( time:Int )
 		Local temptime:Int = time
-		Local current:Keyframe
+		Local current:Knot
 		For Local k := Eachin timeline.Values()
 			If k.time > time - 1
 				current = timeline.Get(k.time)
@@ -93,6 +94,17 @@ Class Fcurve
 			current = last	'gets last value
 		Next
 		Return current
+	End
+	
+	
+	Method GetKnots:Knot[]()
+		Local knots:Knot[ timeline.Count() ]
+		Local n := 0
+		For Local k := Eachin timeline.Values
+			knots[ n ] = k
+			n += 1
+		Next
+		Return knots
 	End
 	
 	
@@ -108,30 +120,30 @@ Class Fcurve
 		End
 	End
 	
-	
-	Method Plot:Void( canvas:Canvas, x1:Float, y1:Float, steps:Int = 1, drawKnots:Bool=True )
+
+	Method Plot:Void( canvas:Canvas, x1:Float, y1:Float, steps:Int = 1, endTime:Int = 0 )
 	
 		Local wx:Float = 0
 		Local wy:Float = y1 - Get( 0 )
+		
+		If endTime = 0 Then endTime = last.time		'endtime = 0 means plot until last knot
 		
 		Repeat
 			canvas.DrawPoint( wx + x1, wy )
 			wx += steps	
 			wy = y1	- Get( wx )
-		Until wx >= last.time
+		Until wx >= endTime
 				
-		If drawKnots
-			For Local k:Keyframe = Eachin timeline.Values()
-				canvas.DrawCircle( k.time + x1 , y1 - ( k.value ) , 2 )
-			Next
-		End
+		For Local k:Knot = Eachin timeline.Values()
+			canvas.DrawCircle( k.time + x1 , y1 - ( k.value ) , 2 )
+		Next
 		
 	End
 	
 End
 
 
-Class Keyframe
+Class Knot
 	Field value:Float
 	Field time:Int
 	Field style:Int
