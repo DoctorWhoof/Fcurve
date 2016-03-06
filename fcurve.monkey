@@ -1,15 +1,15 @@
-Import mojo2								'To remove any dependency, remove the Plot() method and this line.
+Import mojo2						'To remove any dependency, remove the Plot() method and this line.
 
 Class Fcurve
 	
-	Const degToRad: Float 	= (PI/180)		'Multiply by this number to convert
-	Const radToDeg: Float 	= (180/PI)		'Multiply by this number to convert
+	Const degToRad: Float 		= (PI/180)	'Multiply by this number to convert
+	Const radToDeg: Float 		= (180/PI)	'Multiply by this number to convert
 	
 	Const LINEAR:Int		= 0
 	Const HOLD:Int			= 1
 	Const COSINE:Int		= 2
 	
-	Field loop:Bool = False
+	Field loop:Bool 		= False
 
 	Private
 	Field timeline:= New IntMap<Knot>
