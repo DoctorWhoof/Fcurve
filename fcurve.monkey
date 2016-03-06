@@ -1,4 +1,4 @@
-Import mojo2
+Import mojo2								'To remove any dependency, remove the Plot() method and this line.
 
 Class Fcurve
 	
@@ -109,6 +109,8 @@ Class Fcurve
 	
 	
 	Function Interpolate:Float( a:Float, b:Float, x:Float, style:Int=LINEAR )
+		'"a" and "b" are the values to be interpolated
+		'"x" is a value beween 0 and 1.0, where 0 returns "a" and 1.0 returns "b"
 		Select style
 			Case HOLD
 				Return a
@@ -122,12 +124,9 @@ Class Fcurve
 	
 
 	Method Plot:Void( canvas:Canvas, x1:Float, y1:Float, steps:Int = 1, endTime:Int = 0 )
-	
 		Local wx:Float = 0
 		Local wy:Float = y1 - Get( 0 )
-		
 		If endTime = 0 Then endTime = last.time		'endtime = 0 means plot until last knot
-		
 		Repeat
 			canvas.DrawPoint( wx + x1, wy )
 			wx += steps	
@@ -137,7 +136,6 @@ Class Fcurve
 		For Local k:Knot = Eachin timeline.Values()
 			canvas.DrawCircle( k.time + x1 , y1 - ( k.value ) , 2 )
 		Next
-		
 	End
 	
 End
@@ -150,7 +148,7 @@ Class Knot
 End
 
 
-Function Loop:Int(value:Int, duration:Int)		'Loops a value
+Function Loop:Int( value:Int, duration:Int )		'Loops a value
 	If duration > 0
 		Return ( value Mod duration )
 	Else
